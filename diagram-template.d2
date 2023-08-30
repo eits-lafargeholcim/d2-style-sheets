@@ -1,0 +1,30 @@
+...@Styles
+
+# This is an isolated element
+bird: Flying bird
+
+# This creates a box with two elements that are connected 
+park.alice -> park.bob: hello
+
+# Connect to an element that is not in the same box
+park.bob -> home.charlie: come play with us!
+
+# Add a style class to an element
+park.class: White
+
+# Add a style class to an element
+home.charlie: {
+    class: Miscellaneous-User
+} 
+
+# Create a box with an inline style
+sun: {
+    shape: circle
+    style: ¨{
+        fill: yellow
+        stroke: orange # add border color
+        font-color: '#ffffff'
+        font-size: 70
+        stroke-width: 15 # increase border width
+    }
+}
