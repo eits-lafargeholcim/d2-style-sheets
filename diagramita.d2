@@ -1,27 +1,62 @@
 ...@Styles
 
-
-
-
-awsAccount:{   
+awsAccount: AWS Cloud {
+    icon: https://icons.terrastruct.com/aws%2F_Group%20Icons%2FAWS-Cloud-alt_light-bg.svg
+    style: {
+        stroke: green
+        font-color: green
+        fill: white
+      }   
     static: {
-        label: "static"
-        apiGateway
-        apiGatewayRole
-        apiGatewayRolePolicy
-        secretAPIQuentaTsToken
-        sapUser
-        sapAccessKey
-        sapSecretKey
-        sapPolicy
-        mulesoftUser
-        mulesoftAccessKey
-        mulesoftSecretKeys
-        mulesoftPolicy
-        transformationUser
-        transformationAccessKey
-        transformationSecretKeys
-        transformationPolicy
+        label: static
+        apiGateway: {
+            class: [AWSNetworking-Api-Gateway]
+        }
+        apiGatewayRole: {
+            class: [AWSSecurityIdentity-IAM-Role]
+        }
+        apiGatewayRolePolicy: {
+            class: [AWSSecurityIdentity-IAM-Policy]
+        }
+        secretAPIQuentaTsToken: {
+            class: [AWSSecurityIdentity-Secret-Manager]
+        }
+        sapUser: {
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+        sapAccessKey: {
+            class: [AWSSecurityIdentity-Access-Key]
+        }
+        sapSecretKey: {
+            class: [AWSSecurityIdentity-Secret-Manager]
+        }
+        sapPolicy: {
+            class: [AWSSecurityIdentity-IAM-Policy]
+        }
+        mulesoftUser: {
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+        mulesoftAccessKey: {
+            class: [AWSSecurityIdentity-Access-Key]
+        }
+        mulesoftSecretKeys: {
+            class: [AWSSecurityIdentity-Secret-Manager]
+        }
+        mulesoftPolicy: {
+            class: [AWSSecurityIdentity-IAM-Policy]
+        }
+        transformationUser: {
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+        transformationAccessKey: {
+            class: [AWSSecurityIdentity-Access-Key]
+        }
+        transformationSecretKeys: {
+            class: [AWSSecurityIdentity-Secret-Manager]
+        }
+        transformationPolicy: {
+            class: [AWSSecurityIdentity-IAM-Policy]
+        }
 
         apiGateway -> apiGatewayRole -> apiGatewayRolePolicy
         sapPolicy -> sapUser -> sapAccessKey -> sapSecretKey
@@ -30,20 +65,47 @@ awsAccount:{
     }
 
     dynamic: ¨{
-        label: "dynamic"
-        bucket
+        label: dynamic
+        bucket: {
+            class: [AWSStorage-S3]
+        }
+
+        bucket -> timestamp.timestampLambda:{
+            class: animated
+        }
+        bucket -> atrezzo.lambda:{
+            class: animated
+        }
 
         timestamp: {
-            label: "timestamp=true"
-            timestampLambda
-            timestampLambdaRole
-            timestampLambdaPolicy
-            reprocessLambda
-            reprocessLambdaRole
-            reprocessLambdaPolicy
-            reprocessSqs
-            reprocesSqsDeadLetterQueue
-            reprocessLambdaSqsDeadLetterQueue
+            label: timestamp=true
+            timestampLambda: {
+                class: [AWSCompute-Lambda]
+            }
+            timestampLambdaRole: {
+                class: [AWSSecurityIdentity-IAM-Role]
+            }
+            timestampLambdaPolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            reprocessLambda: {
+                class: [AWSCompute-Lambda]
+            }
+            reprocessLambdaRole: {
+                class: [AWSSecurityIdentity-IAM-Role]
+            }
+            reprocessLambdaPolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            reprocessSqs: {
+                class: [AWSApplicationIntegration-SQS]
+            }
+            reprocesSqsDeadLetterQueue: {
+                class: [AWSApplicationIntegration-SQS]
+            }
+            reprocessLambdaSqsDeadLetterQueue: {
+                class: [AWSApplicationIntegration-SQS]
+            }
             
             timestampLambda -> reprocessSqs -> reprocessLambda -> reprocessLambdaSqsDeadLetterQueue 
             timestampLambda -> timestampLambdaRole <- timestampLambdaPolicy
@@ -51,8 +113,104 @@ awsAccount:{
             reprocessSqs -> reprocesSqsDeadLetterQueue
         }
 
+        atrezzo: {
+            label: atrezzo=true
+            lambda: {
+                class: [AWSCompute-Lambda]
+            }
+            lambdaRole: {
+                class: [AWSSecurityIdentity-IAM-Role]
+            }
+            lambdaRolePolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            dynamo: {
+                class: [AWSStorage-Dynamo-DB]
+            }
+
+            lambda -> dynamo
+            lambda -> lambdaRole <- lambdaRolePolicy
+        }
+
+        sqs: {
+            label: sqs=true
+            sqs: {
+                class: [AWSApplicationIntegration-SQS]
+            }
+            sqsPolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            lambda: {
+                class: [AWSCompute-Lambda]
+            }
+            lambdaRole: {
+                class: [AWSSecurityIdentity-IAM-Role]
+            }
+            lambdaRolePolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+
+            sqsPolicy -> sqs
+            sqs -> lambda:{
+                label: trigger
+            } 
+            lambda -> lambdaRole <- lambdaRolePolicy
+        }
+
+        attorney: {
+            label: attorney=true
+            sns: {
+                class: [AWSApplicationIntegration-SNS]
+            }
+            snsPolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            sqs: {
+                class: [AWSApplicationIntegration-SQS]
+            }
+            sqsPolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            lambda: {
+                class: [AWSCompute-Lambda]
+            }
+            lambdaRole: {
+                class: [AWSSecurityIdentity-IAM-Role]
+            }
+            lambdaRolePolicy: {
+                class: [AWSSecurityIdentity-IAM-Policy]
+            }
+            certificate: {
+                class: [AWSSecurityIdentity-ACM-Certificate]
+            }
+            dynamo: {
+                class: [AWSStorage-Dynamo-DB]
+            }
+
+            snsPolicy -> sns
+            sns -> sqs:{
+                label: suscribe
+            }
+            sqsPolicy -> sqs
+            sqs -> lambda:{
+                label: trigger
+            } 
+            lambda -> lambdaRole <- lambdaRolePolicy
+            lambda -> dynamo
+            lambda -> certificate
+        }
     }
 
     static.apiGateway -> dynamic.bucket
+    dynamic.timestamp.timestampLambda -> static.secretAPIQuentaTsToken
+    dynamic.timestamp.reprocessLambda -> static.secretAPIQuentaTsToken
+    static.sapUser -> dynamic.sqs.sqs
+    static.sapUser -> dynamic.sns.sns
+    dynamic.sqs.sqs -> static.transformationUser
 }
 
+nonSapBucket: {
+    class: [AWSStorage-S3]
+}
+
+awsAccount.dynamic.atrezzo.lambda -> nonSapBucket
