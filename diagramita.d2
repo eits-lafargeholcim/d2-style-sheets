@@ -1,0 +1,58 @@
+...@Styles
+
+
+
+
+awsAccount:{   
+    static: {
+        label: "static"
+        apiGateway
+        apiGatewayRole
+        apiGatewayRolePolicy
+        secretAPIQuentaTsToken
+        sapUser
+        sapAccessKey
+        sapSecretKey
+        sapPolicy
+        mulesoftUser
+        mulesoftAccessKey
+        mulesoftSecretKeys
+        mulesoftPolicy
+        transformationUser
+        transformationAccessKey
+        transformationSecretKeys
+        transformationPolicy
+
+        apiGateway -> apiGatewayRole -> apiGatewayRolePolicy
+        sapPolicy -> sapUser -> sapAccessKey -> sapSecretKey
+        mulesoftPolicy -> mulesoftUser -> mulesoftAccessKey -> mulesoftSecretKeys
+        transformationPolicy -> transformationUser -> transformationAccessKey -> transformationSecretKeys
+    }
+
+    dynamic: ¨{
+        label: "dynamic"
+        bucket
+
+        timestamp: {
+            label: "timestamp=true"
+            timestampLambda
+            timestampLambdaRole
+            timestampLambdaPolicy
+            reprocessLambda
+            reprocessLambdaRole
+            reprocessLambdaPolicy
+            reprocessSqs
+            reprocesSqsDeadLetterQueue
+            reprocessLambdaSqsDeadLetterQueue
+            
+            timestampLambda -> reprocessSqs -> reprocessLambda -> reprocessLambdaSqsDeadLetterQueue 
+            timestampLambda -> timestampLambdaRole <- timestampLambdaPolicy
+            reprocessLambda -> reprocessLambdaRole <- reprocessLambdaPolicy
+            reprocessSqs -> reprocesSqsDeadLetterQueue
+        }
+
+    }
+
+    static.apiGateway -> dynamic.bucket
+}
+
