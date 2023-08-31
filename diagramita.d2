@@ -1,0 +1,270 @@
+...@Styles
+
+
+nonSapBucket: {
+    label: <env>-<app_name>-migration
+    class: [AWSStorage-S3]
+}
+
+sap: {
+    label: ""
+    class: [Miscellaneous-Sap]
+}
+
+elasticSearch: {
+    label: ""
+    class: [Miscellaneous-Elk]
+}
+ 
+awsAccount: AWS Cloud {
+    label.near: top-center
+    icon: https://icons.terrastruct.com/aws%2F_Group%20Icons%2FAWS-Cloud-alt_light-bg.svg
+    icon.near: top-left
+    style: {
+        stroke: green
+        font-color: green
+        fill: transparent
+    }
+
+    static: {
+        label: static
+        label.near: top-left
+        class: [White;Title]
+        apiGateway: {
+            label: dok4sap-api-gw-<sap_sys_id>
+            class: [AWSNetworking-Api-Gateway]
+        }
+        apiGatewayRole: {
+            label: role_api_gw
+            class: [AWSSecurityIdentity-IAM-Role]
+        }
+        secretAPIQuentaTsToken: {
+            class: [AWSSecurityIdentity-Secret-Manager]
+        }
+        sapUser: {
+            label: sa-<sap_sys_id>-sap-cxlink-holcim
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+        mulesoftUser: {
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+        transformationUser: {
+            class: [AWSSecurityIdentity-IAM-User]
+        }
+
+        apiGateway -> apiGatewayRole
+    }
+
+    dynamic: ¨{
+        label: dynamic
+        label.near: top-left
+        class: [White;Title]
+
+        bucket: {
+            label: <sap_sys_id>-<sap_content_id>sap-cxlink-holcim
+            class: [AWSStorage-S3]
+            #top: 100
+            #left: 0
+        }
+        
+        timestamp: {
+            label: timestamp=true
+            label.near: top-left
+            class: [White;Title]
+
+            timestampLambda: {
+                label: "lambda-timestamp-sign-<sap_sys_id>-<sap_content_id>"
+                class: [AWSCompute-Lambda]
+            }
+            reprocessLambda: {
+                label: "lambda-reprocess-<sap_sys_id>-<sap_content_id>"
+                class: [AWSCompute-Lambda]
+            }
+            reprocessSqs: {
+                label: "sqs-reprocess-event"
+                class: [AWSApplicationIntegration-SQS]
+            }
+            reprocesSqsDeadLetterQueue: {
+                label: "DLQ"
+                class: [AWSApplicationIntegration-SQS]
+            }
+            reprocessLambdaSqsDeadLetterQueue: {
+                label: "DLQ-timestamp"
+                class: [AWSApplicationIntegration-SQS]
+            }
+
+            timestampLambda -> reprocessSqs: {
+                label: "failed"
+                class: NoAnimated
+            }
+            reprocessSqs -> reprocessLambda: {
+                label: "trigger"
+                class: NoAnimated
+            }
+            reprocessLambda -> reprocessLambdaSqsDeadLetterQueue: {
+                label: "failed"
+                class: NoAnimated
+            }
+            reprocessSqs -> reprocesSqsDeadLetterQueue: {
+                label: "failed"
+                class: NoAnimated
+            }
+        }
+
+        sqs: {
+            class: [White;Title]
+            label: sqs=true
+            label.near: top-left
+            sqs: {
+                label: "sqs-processing-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim"
+                class: [AWSApplicationIntegration-SQS]
+            }
+            lambda: {
+                label: "lambda-sqs-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim"
+                class: [AWSCompute-Lambda]
+            }
+
+            sqs -> lambda:{
+                label: trigger
+                class: NoAnimated
+            }
+        }
+
+        attorney: {
+            direction: left
+            label: attorney=true
+            label.near: top-left
+            class: [White;Title]
+
+            sns: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
+                class: [AWSApplicationIntegration-SNS]
+            }
+            sqs: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
+                class: [AWSApplicationIntegration-SQS]
+            }
+            lambda: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
+                class: [AWSCompute-Lambda]
+            }
+            certificate: {
+                label: holcim-certificate
+                class: [AWSSecurityIdentity-ACM-Certificate]
+            }
+            dynamo: {
+                label: attorney-failed-events-<sap_sys_id>-<sap_content_id>
+                class: [AWSDatabase-DynamoDB]
+            }
+
+            sqs -> lambda:{
+                label: trigger
+                class: NoAnimated
+            }
+            lambda -> dynamo: {
+                label: failed
+                class: Animated
+            }
+            lambda -- certificate: {
+                label: use
+                class: NoAnimated
+            }
+
+            sns -> sqs: {
+                label: suscribe
+                class: NoAnimated
+            }
+        }
+
+        atrezzo: {
+            label: atrezzo=true
+            label.near: top-left
+            class: [White;Title]
+
+            lambda: {
+                label: "lambda-atrezzo-<sap_sys_id>-<sap_content_id>"
+                class: [AWSCompute-Lambda]
+            }
+            dynamo: {
+                label: "dok4sap-failed-events-<sap_sys_id>-<sap_content_id>"
+                class: [AWSDatabase-DynamoDB]
+            }
+
+            lambda -> dynamo: {
+                label: failed
+                class: Animated
+            }
+        }
+
+        # Dynamic Block Internal Connections
+        bucket -> timestamp.timestampLambda: {
+            label: trigger
+            class: NoAnimated
+        }
+        timestamp.timestampLambda -> bucket: {
+            label: document signed
+            class: Animated
+        }
+        bucket -> atrezzo.lambda: {
+            label: trigger
+            class: NoAnimated
+        }
+        atrezzo.lambda -> bucket: {
+            label: timestamped
+            class: Animated
+        }
+        attorney.sns -> sqs.sqs: {
+            label: attorney == true
+            class: NoAnimated
+        }
+        attorney.lambda -> bucket: {
+            label: document signed
+            class: Animated
+        }
+
+        bucket -> attorney.lambda: {
+            label: getObject
+            class: NOAnimated
+        }
+
+        timestamp.reprocessLambda -> bucket: {
+            label: document signed
+            class: Animated
+        }
+    }
+
+    # AWS Account Internal Connections
+    static.apiGateway -> dynamic.bucket: {
+        class: NoAnimated
+    }
+    dynamic.timestamp.timestampLambda -- static.secretAPIQuentaTsToken: {
+        label: use
+        class: NoAnimated
+    }
+    dynamic.timestamp.reprocessLambda -- static.secretAPIQuentaTsToken: {
+        label: use
+        class: NoAnimated
+    }
+
+}
+
+awsAccount.dynamic.atrezzo.lambda <- nonSapBucket: {
+    label: getObject
+    class: NoAnimated
+}
+awsAccount.static.sapUser -> sap
+sap -> awsAccount.dynamic.sqs.sqs: {
+    label: attorney == false
+    class: Animated
+}
+sap -> awsAccount.dynamic.attorney.sns: {
+    class: Animated
+}
+sap -> awsAccount.dynamic.bucket: {
+    class: Animated
+}
+
+awsAccount.dynamic.sqs.lambda -> elasticSearch: {
+    label: sendMetadata
+    class: Animated
+}
