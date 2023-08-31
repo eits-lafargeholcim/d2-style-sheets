@@ -1,9 +1,21 @@
 ...@Styles
 
+
 nonSapBucket: {
+    label: ppm-<sap_content_id>sap-cxlink-holcim
     class: [AWSStorage-S3]
 }
 
+sap: {
+    label: ""
+    class: [Miscellaneous-Sap]
+}
+
+elasticSearch: {
+    label: ""
+    class: [Miscellaneous-Elk]
+}
+ 
 awsAccount: AWS Cloud {
     label.near: top-center
     icon: https://icons.terrastruct.com/aws%2F_Group%20Icons%2FAWS-Cloud-alt_light-bg.svg
@@ -11,12 +23,7 @@ awsAccount: AWS Cloud {
     style: {
         stroke: green
         font-color: green
-        fill: white
-      }
-
-    sap: {
-        label: ""
-        class: [Miscellaneous-Sap]
+        fill: transparent
     }
 
     static: {
@@ -56,51 +63,52 @@ awsAccount: AWS Cloud {
         bucket: {
             label: <sap_sys_id>-<sap_content_id>sap-cxlink-holcim
             class: [AWSStorage-S3]
+            #top: 100
+            #left: 0
         }
-        bucket -> timestamp.timestampLambda: {
-            label: trigger
-            class: animated
-        }
-        timestamp.timestampLambda -> bucket: {
-            label: timestamped
-            class: animated
-        }
-        bucket -> atrezzo.lambda:{
-            label: trigger
-            class: animated
-        }
-        atrezzo.lambda -> bucket :{
-            label: timestamped
-            class: animated
-        }
-        attorney.sns -> sqs.sqs: {
-            label: attorney == true
-            class: animated
-        }
-
+        
         timestamp: {
             label: timestamp=true
             label.near: top-left
             class: [White;Title]
 
             timestampLambda: {
+                label: "lambda-timestamp-sign-<sap_sys_id>-<sap_content_id>"
                 class: [AWSCompute-Lambda]
             }
             reprocessLambda: {
+                label: "lambda-reprocess-<sap_sys_id>-<sap_content_id>"
                 class: [AWSCompute-Lambda]
             }
             reprocessSqs: {
+                label: "sqs-reprocess-event"
                 class: [AWSApplicationIntegration-SQS]
             }
             reprocesSqsDeadLetterQueue: {
+                label: "DLQ"
                 class: [AWSApplicationIntegration-SQS]
             }
             reprocessLambdaSqsDeadLetterQueue: {
+                label: "DLQ-timestamp"
                 class: [AWSApplicationIntegration-SQS]
             }
 
-            timestampLambda -> reprocessSqs -> reprocessLambda -> reprocessLambdaSqsDeadLetterQueue
-            reprocessSqs -> reprocesSqsDeadLetterQueue
+            timestampLambda -> reprocessSqs: {
+                label: "failed"
+                class: NoAnimated
+            }
+            reprocessSqs -> reprocessLambda: {
+                label: "trigger"
+                class: NoAnimated
+            }
+            reprocessLambda -> reprocessLambdaSqsDeadLetterQueue: {
+                label: "failed"
+                class: NoAnimated
+            }
+            reprocessSqs -> reprocesSqsDeadLetterQueue: {
+                label: "failed"
+                class: NoAnimated
+            }
         }
 
         sqs: {
@@ -108,18 +116,22 @@ awsAccount: AWS Cloud {
             label: sqs=true
             label.near: top-left
             sqs: {
+                label: "sqs-processing-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim"
                 class: [AWSApplicationIntegration-SQS]
             }
             lambda: {
+                label: "lambda-sqs-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim"
                 class: [AWSCompute-Lambda]
             }
 
             sqs -> lambda:{
                 label: trigger
+                class: NoAnimated
             }
         }
 
         attorney: {
+            direction: left
             label: attorney=true
             label.near: top-left
             class: [White;Title]
@@ -147,14 +159,20 @@ awsAccount: AWS Cloud {
 
             sqs -> lambda:{
                 label: trigger
+                class: NoAnimated
             }
             lambda -> dynamo: {
                 label: failed
+                class: Animated
             }
-            lambda <- certificate: use
-            sns -> sqs:{
+            lambda -- certificate: {
+                label: use
+                class: NoAnimated
+            }
+
+            sns -> sqs: {
                 label: suscribe
-                class: animated
+                class: NoAnimated
             }
         }
 
@@ -164,33 +182,89 @@ awsAccount: AWS Cloud {
             class: [White;Title]
 
             lambda: {
+                label: "lambda-atrezzo-<sap_sys_id>-<sap_content_id>"
                 class: [AWSCompute-Lambda]
             }
             dynamo: {
+                label: "dok4sap-failed-events-<sap_sys_id>-<sap_content_id>"
                 class: [AWSDatabase-DynamoDB]
             }
 
             lambda -> dynamo: {
                 label: failed
+                class: Animated
             }
+        }
+
+        # Dynamic Block Internal Connections
+        bucket -> timestamp.timestampLambda: {
+            label: trigger
+            class: NoAnimated
+        }
+        timestamp.timestampLambda -> bucket: {
+            label: document signed
+            class: Animated
+        }
+        bucket -> atrezzo.lambda: {
+            label: trigger
+            class: NoAnimated
+        }
+        atrezzo.lambda -> bucket: {
+            label: timestamped
+            class: Animated
+        }
+        attorney.sns -> sqs.sqs: {
+            label: attorney == true
+            class: NoAnimated
+        }
+        attorney.lambda -> bucket: {
+            label: document signed
+            class: Animated
+        }
+
+        bucket -> attorney.lambda: {
+            label: getObject
+            class: NOAnimated
+        }
+
+        timestamp.reprocessLambda -> bucket: {
+            label: document signed
+            class: Animated
         }
     }
 
-    static.apiGateway -> dynamic.bucket
-    dynamic.timestamp.timestampLambda -> static.secretAPIQuentaTsToken
-    dynamic.timestamp.reprocessLambda -> static.secretAPIQuentaTsToken
+    # AWS Account Internal Connections
+    static.apiGateway -> dynamic.bucket: {
+        class: NoAnimated
+    }
+    dynamic.timestamp.timestampLambda -- static.secretAPIQuentaTsToken: {
+        label: use
+        class: NoAnimated
+    }
+    dynamic.timestamp.reprocessLambda -- static.secretAPIQuentaTsToken: {
+        label: use
+        class: NoAnimated
+    }
 
-    static.sapUser -> sap
-    sap -> dynamic.sqs.sqs: {
-        label: attorney == false
-        class: animated
-    }
-    sap -> dynamic.attorney.sns: {
-        class: animated
-    }
-    sap -> dynamic.bucket: {
-        class: animated
-    }
 }
 
-awsAccount.dynamic.atrezzo.lambda -> nonSapBucket
+awsAccount.dynamic.atrezzo.lambda <- nonSapBucket: {
+    label: getObject
+    class: NoAnimated
+}
+awsAccount.static.sapUser -> sap
+sap -> awsAccount.dynamic.sqs.sqs: {
+    label: attorney == false
+    class: Animated
+}
+sap -> awsAccount.dynamic.attorney.sns: {
+    class: Animated
+}
+sap -> awsAccount.dynamic.bucket: {
+    class: Animated
+}
+
+awsAccount.dynamic.sqs.lambda -> elasticSearch: {
+    label: sendMetadata
+    class: Animated
+}
