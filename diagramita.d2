@@ -1,101 +1,93 @@
 ...@Styles
 
+nonSapBucket: {
+    class: [AWSStorage-S3]
+}
+
 awsAccount: AWS Cloud {
+    label.near: top-center
     icon: https://icons.terrastruct.com/aws%2F_Group%20Icons%2FAWS-Cloud-alt_light-bg.svg
+    icon.near: top-left
     style: {
         stroke: green
         font-color: green
         fill: white
-      }   
+      }
+
+    sap: {
+        label: ""
+        class: [Miscellaneous-Sap]
+    }
+
     static: {
         label: static
+        label.near: top-left
+        class: [White;Title]
         apiGateway: {
+            label: dok4sap-api-gw-<sap_sys_id>
             class: [AWSNetworking-Api-Gateway]
         }
         apiGatewayRole: {
+            label: role_api_gw
             class: [AWSSecurityIdentity-IAM-Role]
-        }
-        apiGatewayRolePolicy: {
-            class: [AWSSecurityIdentity-IAM-Policy]
         }
         secretAPIQuentaTsToken: {
             class: [AWSSecurityIdentity-Secret-Manager]
         }
         sapUser: {
+            label: sa-<sap_sys_id>-sap-cxlink-holcim
             class: [AWSSecurityIdentity-IAM-User]
-        }
-        sapAccessKey: {
-            class: [AWSSecurityIdentity-Access-Key]
-        }
-        sapSecretKey: {
-            class: [AWSSecurityIdentity-Secret-Manager]
-        }
-        sapPolicy: {
-            class: [AWSSecurityIdentity-IAM-Policy]
         }
         mulesoftUser: {
             class: [AWSSecurityIdentity-IAM-User]
         }
-        mulesoftAccessKey: {
-            class: [AWSSecurityIdentity-Access-Key]
-        }
-        mulesoftSecretKeys: {
-            class: [AWSSecurityIdentity-Secret-Manager]
-        }
-        mulesoftPolicy: {
-            class: [AWSSecurityIdentity-IAM-Policy]
-        }
         transformationUser: {
             class: [AWSSecurityIdentity-IAM-User]
         }
-        transformationAccessKey: {
-            class: [AWSSecurityIdentity-Access-Key]
-        }
-        transformationSecretKeys: {
-            class: [AWSSecurityIdentity-Secret-Manager]
-        }
-        transformationPolicy: {
-            class: [AWSSecurityIdentity-IAM-Policy]
-        }
 
-        apiGateway -> apiGatewayRole -> apiGatewayRolePolicy
-        sapPolicy -> sapUser -> sapAccessKey -> sapSecretKey
-        mulesoftPolicy -> mulesoftUser -> mulesoftAccessKey -> mulesoftSecretKeys
-        transformationPolicy -> transformationUser -> transformationAccessKey -> transformationSecretKeys
+        apiGateway -> apiGatewayRole
     }
 
     dynamic: ¨{
         label: dynamic
+        label.near: top-left
+        class: [White;Title]
+
         bucket: {
+            label: <sap_sys_id>-<sap_content_id>sap-cxlink-holcim
             class: [AWSStorage-S3]
         }
-
-        bucket -> timestamp.timestampLambda:{
+        bucket -> timestamp.timestampLambda: {
+            label: trigger
+            class: animated
+        }
+        timestamp.timestampLambda -> bucket: {
+            label: timestamped
             class: animated
         }
         bucket -> atrezzo.lambda:{
+            label: trigger
+            class: animated
+        }
+        atrezzo.lambda -> bucket :{
+            label: timestamped
+            class: animated
+        }
+        attorney.sns -> sqs.sqs: {
+            label: attorney == true
             class: animated
         }
 
         timestamp: {
             label: timestamp=true
+            label.near: top-left
+            class: [White;Title]
+
             timestampLambda: {
                 class: [AWSCompute-Lambda]
             }
-            timestampLambdaRole: {
-                class: [AWSSecurityIdentity-IAM-Role]
-            }
-            timestampLambdaPolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
             reprocessLambda: {
                 class: [AWSCompute-Lambda]
-            }
-            reprocessLambdaRole: {
-                class: [AWSSecurityIdentity-IAM-Role]
-            }
-            reprocessLambdaPolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
             }
             reprocessSqs: {
                 class: [AWSApplicationIntegration-SQS]
@@ -106,111 +98,99 @@ awsAccount: AWS Cloud {
             reprocessLambdaSqsDeadLetterQueue: {
                 class: [AWSApplicationIntegration-SQS]
             }
-            
-            timestampLambda -> reprocessSqs -> reprocessLambda -> reprocessLambdaSqsDeadLetterQueue 
-            timestampLambda -> timestampLambdaRole <- timestampLambdaPolicy
-            reprocessLambda -> reprocessLambdaRole <- reprocessLambdaPolicy
+
+            timestampLambda -> reprocessSqs -> reprocessLambda -> reprocessLambdaSqsDeadLetterQueue
             reprocessSqs -> reprocesSqsDeadLetterQueue
         }
 
-        atrezzo: {
-            label: atrezzo=true
-            lambda: {
-                class: [AWSCompute-Lambda]
-            }
-            lambdaRole: {
-                class: [AWSSecurityIdentity-IAM-Role]
-            }
-            lambdaRolePolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
-            dynamo: {
-                class: [AWSStorage-Dynamo-DB]
-            }
-
-            lambda -> dynamo
-            lambda -> lambdaRole <- lambdaRolePolicy
-        }
-
         sqs: {
+            class: [White;Title]
             label: sqs=true
+            label.near: top-left
             sqs: {
                 class: [AWSApplicationIntegration-SQS]
             }
-            sqsPolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
             lambda: {
                 class: [AWSCompute-Lambda]
             }
-            lambdaRole: {
-                class: [AWSSecurityIdentity-IAM-Role]
-            }
-            lambdaRolePolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
 
-            sqsPolicy -> sqs
             sqs -> lambda:{
                 label: trigger
-            } 
-            lambda -> lambdaRole <- lambdaRolePolicy
+            }
         }
 
         attorney: {
             label: attorney=true
+            label.near: top-left
+            class: [White;Title]
+
             sns: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
                 class: [AWSApplicationIntegration-SNS]
             }
-            snsPolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
             sqs: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
                 class: [AWSApplicationIntegration-SQS]
             }
-            sqsPolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
             lambda: {
+                label: attorney-<sap_sys_id>-<sap_content_id>-sap-cxlink-holcim
                 class: [AWSCompute-Lambda]
             }
-            lambdaRole: {
-                class: [AWSSecurityIdentity-IAM-Role]
-            }
-            lambdaRolePolicy: {
-                class: [AWSSecurityIdentity-IAM-Policy]
-            }
             certificate: {
+                label: holcim-certificate
                 class: [AWSSecurityIdentity-ACM-Certificate]
             }
             dynamo: {
-                class: [AWSStorage-Dynamo-DB]
+                label: attorney-failed-events-<sap_sys_id>-<sap_content_id>
+                class: [AWSDatabase-DynamoDB]
             }
 
-            snsPolicy -> sns
-            sns -> sqs:{
-                label: suscribe
-            }
-            sqsPolicy -> sqs
             sqs -> lambda:{
                 label: trigger
-            } 
-            lambda -> lambdaRole <- lambdaRolePolicy
-            lambda -> dynamo
-            lambda -> certificate
+            }
+            lambda -> dynamo: {
+                label: failed
+            }
+            lambda <- certificate: use
+            sns -> sqs:{
+                label: suscribe
+                class: animated
+            }
+        }
+
+        atrezzo: {
+            label: atrezzo=true
+            label.near: top-left
+            class: [White;Title]
+
+            lambda: {
+                class: [AWSCompute-Lambda]
+            }
+            dynamo: {
+                class: [AWSDatabase-DynamoDB]
+            }
+
+            lambda -> dynamo: {
+                label: failed
+            }
         }
     }
 
     static.apiGateway -> dynamic.bucket
     dynamic.timestamp.timestampLambda -> static.secretAPIQuentaTsToken
     dynamic.timestamp.reprocessLambda -> static.secretAPIQuentaTsToken
-    static.sapUser -> dynamic.sqs.sqs
-    static.sapUser -> dynamic.sns.sns
-    dynamic.sqs.sqs -> static.transformationUser
-}
 
-nonSapBucket: {
-    class: [AWSStorage-S3]
+    static.sapUser -> sap
+    sap -> dynamic.sqs.sqs: {
+        label: attorney == false
+        class: animated
+    }
+    sap -> dynamic.attorney.sns: {
+        class: animated
+    }
+    sap -> dynamic.bucket: {
+        class: animated
+    }
 }
 
 awsAccount.dynamic.atrezzo.lambda -> nonSapBucket
