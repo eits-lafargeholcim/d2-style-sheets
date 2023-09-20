@@ -1,11 +1,32 @@
 classes: {
+    AlreadyExists: {
+        style: {
+            opacity: 0.5
+        }
+    }
     Animated: {
         style: {
             animated: true
             font-size: 25
         }
     }
-    NoAnimated: {
+    FilledBlueBox: {
+        style: {
+            stroke: '#1D4370' # Holcim blue color
+            stroke-dash: 3
+            font-size: 25
+            fill: '#D9E0E7'
+        }
+    }
+    FilledGreenBox: {
+        style: {
+            stroke: '#94C12E' # Holcim green color
+            stroke-dash: 3
+            font-size: 25
+            fill: '#EDF5DC'
+        }
+    }
+    NotAnimated: {
         style: {
             animated: false
             font-size: 25
@@ -17,6 +38,22 @@ classes: {
             stroke-dash: 3
             font-size: 25
             font-color: '#213178'
+        }
+    }
+    TransparentBlueBox: {
+        style: {
+            stroke: '#1D4370' # Holcim blue color
+            stroke-dash: 3
+            font-size: 25
+            fill: transparent
+        }
+    }
+    TransparentGreenBox: {
+        style: {
+            stroke: '#94C12E' # Holcim green color
+            stroke-dash: 3
+            font-size: 25
+            fill: transparent
         }
     }
 }
