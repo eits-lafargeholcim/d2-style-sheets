@@ -1,10 +1,14 @@
 ...@Main
+...@variables 
 
 # [Optional] Set right direction for all elements. You can play with this value.
 direction: right
 
 # This is an isolated element
 bird: Flying bird
+
+#Using a variable defined in the variables.d2 file
+pigeon: ${birdName}
 
 # This creates a box with two elements that are connected 
 park.alice -> park.bob: hello
