@@ -5,7 +5,5 @@ Diagram*.d2
 Diagrams*.d2
 *.svg
 variables.d2
-*.mustache
 *.j2
 *.json
-variables.d2
