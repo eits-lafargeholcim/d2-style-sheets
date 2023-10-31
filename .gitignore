@@ -5,3 +5,5 @@ Diagram*.d2
 Diagrams*.d2
 *.svg
 variables.d2
+*.j2
+*.json
