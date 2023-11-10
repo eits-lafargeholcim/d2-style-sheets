@@ -1,0 +1,6 @@
+vars: {
+  kms_key_id: "{{kms_key_id}}"
+  type: "{{type}}"
+  env: "{{env}}"
+  app_name: "{{app_name}}"
+}
