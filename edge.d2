@@ -1,0 +1,61 @@
+...@Main
+
+direction: right
+
+Operator: {
+    class: [Miscellaneous-User]
+    label: "EUS Operator"
+}
+
+Cloud: {
+    class: [AWSAccountBox]
+    label: ""
+
+    Server1:{class: AWSCompute-EC2}
+    Server2:{class: AWSCompute-EC2}
+}
+
+SDWAN:{
+    icon: https://icons.terrastruct.com/infra%2F040-global%20network.svg
+    shape: image
+    width: 180
+    height: 180
+}
+
+Office: {
+    label: "Offices"
+    icon: https://icons.terrastruct.com/azure%2FAnalytics%20Service%20Color%2FData%20Factories.svg
+    icon.near: top-left
+    label.near: top-center
+    style: {
+        stroke-width: 0
+        font-size: 40
+        bold: true
+        fill: lightgrey
+    }
+
+    Users: {
+        icon: https://icons.terrastruct.com/essentials%2F359-users.svg
+        shape: image
+        width: 180
+        height: 180
+    }
+}
+
+Internet: {
+    label: "Internet"
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FCloud%20Services%20%28Classic%29.svg
+    shape: image
+    width: 180
+    height: 180
+}
+
+Operator -> Internet : Create Resources
+Internet -- Cloud
+
+Cloud.Server1 <- SDWAN
+Cloud.Server2 <- SDWAN
+
+SDWAN <- Office.Users
+SDWAN <- Office.Users : Connect
+
