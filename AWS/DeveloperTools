@@ -1,0 +1,8 @@
+classes: {
+    AWSCodeBuild: {
+        icon: https://icons.terrastruct.com/aws%2FDeveloper%20Tools%2FAWS-CodeBuild.svg
+        shape: image
+        width: 180
+        height: 180
+    }
+}
